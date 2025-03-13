@@ -1,6 +1,7 @@
 import requests
 import yaml
 from jira import JIRA
+import csv
 
 def get_work_packages(api_url, token):
     headers = {'Authorization': f'Bearer {token}'}
@@ -26,6 +27,19 @@ def create_issue(jira_server, jira_token, issue_data):
     issue = jira.create_issue(fields=issue_data)
     return issue
 
+def write_data_to_csv(data, filename):
+    if not data:
+        print("No data to write.")
+        return
+
+    headers = data[0].keys()
+    with open(filename, mode="w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=headers)
+        writer.writeheader()
+        writer.writerows(data)
+        
+    print(f"Data successfully written to {filename}")
+
 def main():
     OPENPROJECT_API_URL = "https://your-openproject-instance/api/v3"
     OPENPROJECT_TOKEN = "your_openproject_token"
@@ -40,6 +54,8 @@ def main():
     
     # Extract work packages from the source system.
     work_packages = get_work_packages(OPENPROJECT_API_URL, OPENPROJECT_TOKEN)
+
+    csv_data = []
     
     # Process each work package and create corresponding issues in Jira.
     for wp in work_packages:
@@ -49,6 +65,8 @@ def main():
             print(f"Successfully created issue: {issue.key}")
         except Exception as e:
             print(f"Error creating issue: {e}")
+
+    write_data_to_csv(csv_data, "output.csv")
 
 if __name__ == "__main__":
     main()
