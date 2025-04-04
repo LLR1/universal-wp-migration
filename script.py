@@ -3,6 +3,8 @@ import yaml
 from jira import JIRA
 import csv
 import logging
+from typing import List, Dict, Any
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
