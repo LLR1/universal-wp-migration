@@ -53,10 +53,10 @@ def write_data_to_csv(data: List[Dict[str, Any]], filename: str) -> None:
         writer = csv.DictWriter(csvfile, fieldnames=headers)
         writer.writeheader()
         writer.writerows(data)
-        
-    print(f"Data successfully written to {filename}")
+    logging.info(f"Data successfully written to {filename}")
 
-def main():
+def main() -> None:
+    # Configuration
     OPENPROJECT_API_URL = "https://your-openproject-instance/api/v3"
     OPENPROJECT_TOKEN = "your_openproject_token"
     JIRA_SERVER = "https://your-jira-instance.atlassian.net"
