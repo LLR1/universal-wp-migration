@@ -2,6 +2,9 @@ import requests
 import yaml
 from jira import JIRA
 import csv
+import logging
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def get_work_packages(api_url, token):
     headers = {'Authorization': f'Bearer {token}'}
@@ -27,9 +30,12 @@ def create_issue(jira_server, jira_token, issue_data):
     issue = jira.create_issue(fields=issue_data)
     return issue
 
-def write_data_to_csv(data, filename):
+def write_data_to_csv(data: List[Dict[str, Any]], filename: str) -> None:
+    """
+    Writes the provided data to a CSV file.
+    """
     if not data:
-        print("No data to write.")
+        logging.info("No data available to write to CSV.")
         return
 
     headers = data[0].keys()
@@ -57,14 +63,25 @@ def main():
 
     csv_data = []
     
-    # Process each work package and create corresponding issues in Jira.
+    # Process each work package and create corresponding issues in Jira
     for wp in work_packages:
         issue_data = transform_package(wp, mapping)
         try:
             issue = create_issue(JIRA_SERVER, JIRA_TOKEN, issue_data)
-            print(f"Successfully created issue: {issue.key}")
+            logging.info(f"Successfully created issue: {issue.key}")
+            # Append created issue data for CSV logging
+            csv_data.append({
+                "issue_key": issue.key,
+                **issue_data
+            })
         except Exception as e:
-            print(f"Error creating issue: {e}")
+            logging.error(f"Error creating issue: {e}")
+            # Save data even if an error occurs for debugging purposes
+            csv_data.append({
+                "issue_key": None,
+                **issue_data,
+                "error": str(e)
+            })
 
     write_data_to_csv(csv_data, "output.csv")
 
