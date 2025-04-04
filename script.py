@@ -68,8 +68,11 @@ def main():
     )
     mapping = load_mapping_from_string(mapping_yaml)
     
-    # Extract work packages from the source system.
-    work_packages = get_work_packages(OPENPROJECT_API_URL, OPENPROJECT_TOKEN)
+    try:
+        work_packages = get_work_packages(OPENPROJECT_API_URL, OPENPROJECT_TOKEN)
+    except Exception as e:
+        logging.error(f"Error fetching work packages: {e}")
+        return
 
     csv_data = []
     
