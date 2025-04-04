@@ -6,25 +6,35 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def get_work_packages(api_url, token):
+def get_work_packages(api_url: str, token: str) -> List[Dict[str, Any]]:
+    """
+    Retrieves work packages from the given API endpoint using the provided token.
+    """
     headers = {'Authorization': f'Bearer {token}'}
     response = requests.get(f'{api_url}/work_packages', headers=headers)
-    if response.status_code == 200:
-        data = response.json()
-        return data.get('work_packages', [])
-    else:
-        raise Exception("Error fetching work packages: " + response.text)
+    response.raise_for_status()  # Raises an exception if the response status is not 200
+    data = response.json()
+    return data.get('work_packages', [])
 
-def load_mapping_from_string(mapping_str):
+def load_mapping_from_string(mapping_str: str) -> Dict[str, str]:
+    """
+    Loads the field mapping configuration from a YAML string.
+    """
     return yaml.safe_load(mapping_str)
 
-def transform_package(work_package, mapping):
+def transform_package(work_package: Dict[str, Any], mapping: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Transforms a work package using the provided mapping.
+    """
     transformed = {}
     for source_field, target_field in mapping.items():
         transformed[target_field] = work_package.get(source_field)
     return transformed
 
-def create_issue(jira_server, jira_token, issue_data):
+def create_issue(jira_server: str, jira_token: str, issue_data: Dict[str, Any]) -> Any:
+    """
+    Creates an issue in Jira using the provided issue data.
+    """
     options = {"server": jira_server}
     jira = JIRA(options, token_auth=jira_token)
     issue = jira.create_issue(fields=issue_data)
